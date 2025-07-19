@@ -1,2 +1,5 @@
 # TuringLab
-desktop chat app
+jupyter like easy ollama integrated chat app
+
+how to use  
+later...
