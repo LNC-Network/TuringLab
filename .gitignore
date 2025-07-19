@@ -31,30 +31,3 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.pyc
-*.pyo
-*.pyd
-.Python
-
-# Pipenv
-Pipfile.lock
-
-# Virtualenv
-venv/
-env/
-ENV/
-.venv/
-.env/
-
-# Misc
-*.log
-*.swp
-*.bak
-*.tmp
-*.orig
-*.rej

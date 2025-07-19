@@ -1,0 +1,19 @@
+{
+  "name": "turingchat",
+  "version": "1.0.0",
+  "description": "",
+  "license": "none",
+  "author": "",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
