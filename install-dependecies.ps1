@@ -1,5 +1,9 @@
-cd .\chat-backend\
+cd .\backend\
 pnpm install
 cd ..\
-cd .\chat-frontend\
+cd .\frontend\
 pnpm install
+cd ..\
+cd .\desktop\
+npm install
+cd ..\
