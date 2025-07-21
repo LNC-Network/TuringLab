@@ -1,0 +1,100 @@
+:root {
+    color-scheme: light dark;
+
+    /* Accent and shadows */
+    --primary-accent: #4aa3df;
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-dark: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+    /* Light theme colors */
+    --bg-light: #f9f9fb;
+    /* Softer than pure white */
+    --text-light: #2d2d2d;
+    /* Softer than black */
+
+    /* Dark theme colors */
+    --bg-dark: #1e1e22;
+    /* Softer dark tone */
+    --text-dark: #e6e6e6;
+    /* Softer white */
+}
+
+body {
+    font-family: system-ui, Arial, Helvetica, sans-serif;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--bg-dark);
+        color: var(--text-dark);
+    }
+}
+
+/* Sections and header containers */
+header,
+section {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    /* Slight translucency for softer feel */
+    box-shadow: var(--shadow-light);
+    border-radius: 12px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+/* Dark mode for sections */
+@media (prefers-color-scheme: dark) {
+
+    header,
+    section {
+        background-color: rgba(40, 40, 44, 0.9);
+        box-shadow: var(--shadow-dark);
+    }
+}
+
+h1 {
+    font-size: 2.4rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+p {
+    margin: 12px 0;
+    font-size: 1.05rem;
+}
+
+ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+li {
+    margin-bottom: 8px;
+    list-style-type: disc;
+}
+
+li::marker {
+    color: var(--primary-accent);
+}
+
+/* Responsive design improvements */
+@media (max-width: 600px) {
+
+    header,
+    section {
+        margin: 20px;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+}
