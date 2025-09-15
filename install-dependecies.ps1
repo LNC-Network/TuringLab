@@ -1,9 +1,0 @@
-cd .\backend\
-pnpm install
-cd ..\
-cd .\frontend\
-pnpm install
-cd ..\
-cd .\desktop\
-npm install
-cd ..\
