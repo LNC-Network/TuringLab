@@ -1,135 +1,158 @@
-# Turborepo starter
+# 🧠 TuringLab
 
-This Turborepo starter is maintained by the Turborepo core team.
+> **TuringLab** is an open platform where you can connect **non-LLM machine learning models** (like classifiers, regressors, or custom models) with **LLMs of your choice** — allowing you to **talk to your ML models through natural language**.
 
-## Using this example
+---
 
-Run the following command:
+## 🚀 Overview
 
-```sh
-npx create-turbo@latest
-```
+TuringLab bridges the gap between traditional ML models and modern LLMs.  
+You can plug in your **custom-trained models**, add an **LLM backend** (like OpenAI, Anthropic, or local ones), and start **interacting with your models conversationally**.
 
-## What's inside?
+We use the **Model Context Protocol (MCP)** to make LLMs act as intelligent agents that can:
+- Understand user queries
+- Route them to your ML models
+- Interpret and summarize results
+- Maintain conversational context
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## 🧩 Key Features
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- 🔗 **Bring Your Own Model** — Add any scikit-learn, TensorFlow, or PyTorch model.  
+- 💬 **LLM Bridge** — Connect any LLM (OpenAI, Anthropic, Ollama, etc.) to talk to your models.  
+- 🤖 **MCP-Powered Agents** — Enable dynamic communication between LLM and your ML model.  
+- 🧠 **Multi-Model Orchestration** — Connect multiple ML models and interact with them seamlessly.  
+- ⚙️ **Extensible API** — Expose models through unified APIs and SDKs.  
+- 🧾 **Logging & Insights** — Track interactions and analyze responses.  
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+---
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## 🏗️ Architecture
 
 ```
-cd my-turborepo
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
++-------------------+
+|     User Input    |
++-------------------+
+|
+v
++-------------------+
+|       LLM Agent   |  <-- (MCP Protocol)
++-------------------+
+|
+v
++---------------------------+
+| Non-LLM Model Interface   |
+|  (Classifier / Custom ML) |
++---------------------------+
+|
+v
++-------------------+
+|   Output & Reply  |
++-------------------+
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+````
+
+---
+
+## 🧰 Tech Stack
+
+| Component | Technology |
+|------------|-------------|
+| Backend | Node.js / Express |
+| Agent Layer | MCP (Model Context Protocol) |
+| ML Model Interface | Python (scikit-learn / TensorFlow / PyTorch) |
+| LLM Interface | OpenAI / Ollama / Anthropic / Local LLMs |
+| CLI / SDK | TypeScript |
+| Frontend (planned) | Next.js + Tailwind |
+
+---
+
+## ⚙️ Getting Started
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/LNC-Network/TuringLab.git
+cd TuringLab
+````
+
+### 2️⃣ Install Dependencies
+
+```bash
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### 3️⃣ Add Your Models
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+Put your ML models (like `.pkl`, `.onnx`, or `.pt` files) in the `/models` directory and register them in the config file:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```json
+{
+  "models": [
+    {
+      "name": "spam_classifier",
+      "path": "./models/spam.pkl",
+      "type": "sklearn"
+    }
+  ]
+}
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### 4️⃣ Connect an LLM
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+Add your LLM API key in `.env`:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your_api_key_here
 ```
 
-### Remote Caching
+### 5️⃣ Run the Agent
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+pnpm dev
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+---
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## 💡 Example Use
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+**User:** “Classify this message: *‘Win a free iPhone!’*”
+**TuringLab:** “That looks like spam (Confidence: 94%).”
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+**User:** “Why?”
+**TuringLab:** “The model found multiple spam-related keywords and a high promotional tone.”
 
-## Useful Links
+---
 
-Learn more about the power of Turborepo:
+## 🧩 Roadmap
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+* [ ] Plugin System for new model types
+* [ ] Model Dashboard
+* [ ] Model-to-Model Interaction
+* [ ] LLM Fine-Tuning Interface
+* [ ] Web UI for agent chat
+
+---
+
+## 🧑‍💻 Contributing
+
+We welcome contributions!
+
+1. Fork the repo
+2. Create a new branch: `feat/your-feature`
+3. Submit a PR
+
+---
+
+## 🌐 Project Links
+
+* 🧱 **Org:** [LNC Network](https://github.com/LNC-Network)
+* 🔗 **Repo:** [TuringLab](https://github.com/LNC-Network/TuringLab)
+* 💬 **Community:** Coming soon on Discord
+
+---
+
+> “Build models that think, not just predict.”
+
