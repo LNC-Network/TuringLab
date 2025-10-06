@@ -1,158 +1,109 @@
-# 🧠 TuringLab
+# Turinglab
 
-> **TuringLab** is an open platform where you can connect **non-LLM machine learning models** (like classifiers, regressors, or custom models) with **LLMs of your choice** — allowing you to **talk to your ML models through natural language**.
+<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
----
+✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
 
-## 🚀 Overview
+[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
 
-TuringLab bridges the gap between traditional ML models and modern LLMs.  
-You can plug in your **custom-trained models**, add an **LLM backend** (like OpenAI, Anthropic, or local ones), and start **interacting with your models conversationally**.
+## Generate a library
 
-We use the **Model Context Protocol (MCP)** to make LLMs act as intelligent agents that can:
-- Understand user queries
-- Route them to your ML models
-- Interpret and summarize results
-- Maintain conversational context
-
----
-
-## 🧩 Key Features
-
-- 🔗 **Bring Your Own Model** — Add any scikit-learn, TensorFlow, or PyTorch model.  
-- 💬 **LLM Bridge** — Connect any LLM (OpenAI, Anthropic, Ollama, etc.) to talk to your models.  
-- 🤖 **MCP-Powered Agents** — Enable dynamic communication between LLM and your ML model.  
-- 🧠 **Multi-Model Orchestration** — Connect multiple ML models and interact with them seamlessly.  
-- ⚙️ **Extensible API** — Expose models through unified APIs and SDKs.  
-- 🧾 **Logging & Insights** — Track interactions and analyze responses.  
-
----
-
-## 🏗️ Architecture
-
+```sh
+npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
 ```
 
-+-------------------+
-|     User Input    |
-+-------------------+
-|
-v
-+-------------------+
-|       LLM Agent   |  <-- (MCP Protocol)
-+-------------------+
-|
-v
-+---------------------------+
-| Non-LLM Model Interface   |
-|  (Classifier / Custom ML) |
-+---------------------------+
-|
-v
-+-------------------+
-|   Output & Reply  |
-+-------------------+
+## Run tasks
 
-````
+To build the library use:
 
----
-
-## 🧰 Tech Stack
-
-| Component | Technology |
-|------------|-------------|
-| Backend | Node.js / Express |
-| Agent Layer | MCP (Model Context Protocol) |
-| ML Model Interface | Python (scikit-learn / TensorFlow / PyTorch) |
-| LLM Interface | OpenAI / Ollama / Anthropic / Local LLMs |
-| CLI / SDK | TypeScript |
-| Frontend (planned) | Next.js + Tailwind |
-
----
-
-## ⚙️ Getting Started
-
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/LNC-Network/TuringLab.git
-cd TuringLab
-````
-
-### 2️⃣ Install Dependencies
-
-```bash
-pnpm install
+```sh
+npx nx build pkg1
 ```
 
-### 3️⃣ Add Your Models
+To run any task with Nx use:
 
-Put your ML models (like `.pkl`, `.onnx`, or `.pt` files) in the `/models` directory and register them in the config file:
-
-```json
-{
-  "models": [
-    {
-      "name": "spam_classifier",
-      "path": "./models/spam.pkl",
-      "type": "sklearn"
-    }
-  ]
-}
+```sh
+npx nx <target> <project-name>
 ```
 
-### 4️⃣ Connect an LLM
+These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
 
-Add your LLM API key in `.env`:
+[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-```env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=your_api_key_here
+## Versioning and releasing
+
+To version and release the library use
+
+```
+npx nx release
 ```
 
-### 5️⃣ Run the Agent
+Pass `--dry-run` to see what would happen without actually releasing the library.
 
-```bash
-pnpm dev
+[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Keep TypeScript project references up to date
+
+Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+
+To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+
+```sh
+npx nx sync
 ```
 
----
+You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
 
-## 💡 Example Use
+```sh
+npx nx sync:check
+```
 
-**User:** “Classify this message: *‘Win a free iPhone!’*”
-**TuringLab:** “That looks like spam (Confidence: 94%).”
+[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
 
-**User:** “Why?”
-**TuringLab:** “The model found multiple spam-related keywords and a high promotional tone.”
+## Set up CI!
 
----
+### Step 1
 
-## 🧩 Roadmap
+To connect to Nx Cloud, run the following command:
 
-* [ ] Plugin System for new model types
-* [ ] Model Dashboard
-* [ ] Model-to-Model Interaction
-* [ ] LLM Fine-Tuning Interface
-* [ ] Web UI for agent chat
+```sh
+npx nx connect
+```
 
----
+Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
 
-## 🧑‍💻 Contributing
+- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-We welcome contributions!
+### Step 2
 
-1. Fork the repo
-2. Create a new branch: `feat/your-feature`
-3. Submit a PR
+Use the following command to configure a CI workflow for your workspace:
 
----
+```sh
+npx nx g ci-workflow
+```
 
-## 🌐 Project Links
+[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-* 🧱 **Org:** [LNC Network](https://github.com/LNC-Network)
-* 🔗 **Repo:** [TuringLab](https://github.com/LNC-Network/TuringLab)
-* 💬 **Community:** Coming soon on Discord
+## Install Nx Console
 
----
+Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
 
-> “Build models that think, not just predict.”
+[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
+## Useful links
+
+Learn more:
+
+- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
+- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+And join the Nx community:
+- [Discord](https://go.nx.dev/community)
+- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
+- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
+- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)

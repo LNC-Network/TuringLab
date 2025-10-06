@@ -1,20 +1,18 @@
 {
-  "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "types": ["vite/client"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    "next.config.js",
-    ".next/types/**/*.ts"
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "extends": "../../tsconfig.base.json"
 }
