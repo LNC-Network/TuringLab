@@ -1,9 +1,0 @@
-packages:
-  # Include all packages in direct subdirectories of packages/
-  - 'packages/*'
-  # Include all packages in nested subdirectories of packages/
-  # - 'packages/**'
-  # Exclude test directories
-  - '!**/test/**'
-  # Exclude node_modules
-  - '!**/node_modules/**'
