@@ -1,7 +1,11 @@
-# Tauri + Yew
+# IDEA
 
-This template should help get you started developing with Tauri and Yew.
+to build a SaaS product which works on top of ollama
 
-## Recommended IDE Setup
+it manages multiple instances of ollama hosted in multiple mechines
 
-[VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+it gives a stateful chat api
+
+manages everything from chat history to dead or un responsive cluster
+
+a paid service.
