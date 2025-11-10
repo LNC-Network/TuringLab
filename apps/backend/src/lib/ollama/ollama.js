@@ -1,90 +1,296 @@
-// /C:/Users/jitde/OneDrive/Desktop/TuringLab/apps/backend/src/lib/ollama/ollama.js
-// Simple helper to call a local Ollama server (default: http://localhost:11434).
-// Requires Node 18+ (global fetch). Exports generateText (returns full text) and streamGenerate (async generator of raw chunks).
+// Ollama client library for text generation
+// Supports both full text generation and streaming responses
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
+const DEFAULT_MODEL = process.env.OLLAMA_MODEL || "gemma2:2b";
 
+/**
+ * Generate text using Ollama API
+ * @param {string} prompt - The input prompt
+ * @param {Object} options - Generation options
+ * @returns {Promise<string>} - Generated text
+ */
 async function generateText(
   prompt,
-  { model = "gemma3:1b", max_tokens = 512, temperature = 0.7 } = {}
+  {
+    model = DEFAULT_MODEL,
+    max_tokens = 512,
+    temperature = 0.7,
+    stream = false,
+  } = {},
 ) {
-  const res = await fetch(`${OLLAMA_URL}/api/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      prompt,
-      // including common tuning options; Ollama accepts many shapes, server will ignore unknown fields
-      max_tokens,
-      temperature,
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(
-      `Ollama generate failed: ${res.status} ${res.statusText} ${body}`
-    );
-  }
-
-  // Try to return the response as plain text. Ollama often streams NDJSON; many setups also return a full JSON blob.
-  const raw = await res.text();
-  // If it's JSON, try to extract human-readable parts heuristically
   try {
-    const parsed = JSON.parse(raw);
-    // common shape: parsed?.output -> array of {type: 'output_text', text: '...'}
-    if (parsed && Array.isArray(parsed.output)) {
-      return parsed.output.map((o) => o.text ?? o.content ?? "").join("");
+    const res = await fetch(`${OLLAMA_URL}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        prompt,
+        stream: false, // We want complete response for this function
+        options: {
+          num_predict: max_tokens,
+          temperature: temperature,
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "");
+      throw new Error(
+        `Ollama API error: ${res.status} ${res.statusText}. ${errorText}`,
+      );
     }
-    // fallback: if there's a 'text' or 'answer' field
-    if (parsed && (parsed.text || parsed.answer || parsed.content)) {
-      return parsed.text ?? parsed.answer ?? parsed.content;
-    }
-  } catch (err) {
-    // not JSON -> fallthrough
+
+    const text = await res.text();
+
+    // Parse the response - Ollama returns NDJSON (newline-delimited JSON)
+    return parseOllamaResponse(text);
+  } catch (error) {
+    console.error("Error in generateText:", error);
+    throw new Error(`Failed to generate text: ${error.message}`);
   }
-  return raw;
 }
 
-// Async generator that yields raw decoded chunks as they arrive from Ollama (useful for streaming).
+/**
+ * Parse Ollama's response format
+ * Ollama can return either NDJSON (multiple JSON objects separated by newlines)
+ * or a single JSON object
+ */
+function parseOllamaResponse(text) {
+  if (!text || text.trim() === "") {
+    return "";
+  }
+
+  try {
+    // Split by newlines to handle NDJSON format
+    const lines = text.trim().split("\n");
+    let fullResponse = "";
+
+    for (const line of lines) {
+      if (!line.trim()) continue;
+
+      try {
+        const parsed = JSON.parse(line);
+
+        // Ollama's response structure includes a "response" field
+        if (parsed.response) {
+          fullResponse += parsed.response;
+        }
+
+        // Alternative field names that might be present
+        if (parsed.text) {
+          fullResponse += parsed.text;
+        }
+
+        if (parsed.content) {
+          fullResponse += parsed.content;
+        }
+      } catch (e) {
+        // If a line is not JSON, it might be plain text
+        fullResponse += line;
+      }
+    }
+
+    return fullResponse.trim() || text.trim();
+  } catch (error) {
+    // If all parsing fails, return the raw text
+    console.warn(
+      "Failed to parse Ollama response, returning raw text:",
+      error.message,
+    );
+    return text.trim();
+  }
+}
+
+/**
+ * Stream text generation from Ollama
+ * Returns an async generator that yields text chunks as they arrive
+ * @param {string} prompt - The input prompt
+ * @param {Object} options - Generation options
+ * @returns {AsyncGenerator<string>} - Async generator yielding text chunks
+ */
 async function* streamGenerate(
   prompt,
-  { model = "gemma3:1b", max_tokens = 512, temperature = 0.7 } = {}
+  { model = DEFAULT_MODEL, max_tokens = 512, temperature = 0.7 } = {},
 ) {
-  const res = await fetch(`${OLLAMA_URL}/api/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, prompt, max_tokens, temperature }),
-  });
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        prompt,
+        stream: true,
+        options: {
+          num_predict: max_tokens,
+          temperature: temperature,
+        },
+      }),
+    });
 
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(
-      `Ollama stream failed: ${res.status} ${res.statusText} ${body}`
-    );
-  }
-
-  if (!res.body || !res.body.getReader) {
-    // If body isn't a stream, just yield the whole text once
-    yield await res.text();
-    return;
-  }
-
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let done = false;
-  while (!done) {
-    const { value, done: readerDone } = await reader.read();
-    done = readerDone;
-    if (value) {
-      const chunk = decoder.decode(value, { stream: true });
-      // yield raw chunk (could be NDJSON lines or plain text depending on server)
-      yield chunk;
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "");
+      throw new Error(
+        `Ollama stream error: ${res.status} ${res.statusText}. ${errorText}`,
+      );
     }
+
+    if (!res.body) {
+      throw new Error("Response body is not readable");
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) break;
+
+      // Decode the chunk
+      const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk;
+
+      // Process complete lines from the buffer
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+        try {
+          const parsed = JSON.parse(line);
+
+          // Yield the response text if available
+          if (parsed.response) {
+            yield parsed.response;
+          }
+
+          // Check if this is the final chunk
+          if (parsed.done) {
+            return;
+          }
+        } catch (e) {
+          // If line is not valid JSON, yield it as-is
+          if (line.trim()) {
+            yield line;
+          }
+        }
+      }
+    }
+
+    // Process any remaining buffer
+    if (buffer.trim()) {
+      try {
+        const parsed = JSON.parse(buffer);
+        if (parsed.response) {
+          yield parsed.response;
+        }
+      } catch (e) {
+        yield buffer;
+      }
+    }
+  } catch (error) {
+    console.error("Error in streamGenerate:", error);
+    throw new Error(`Failed to stream text: ${error.message}`);
+  }
+}
+
+/**
+ * Chat completion using Ollama's chat API
+ * @param {Array} messages - Array of message objects with role and content
+ * @param {Object} options - Generation options
+ * @returns {Promise<string>} - Generated response
+ */
+async function chatCompletion(
+  messages,
+  { model = DEFAULT_MODEL, temperature = 0.7, max_tokens = 512 } = {},
+) {
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        messages: messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        })),
+        stream: false,
+        options: {
+          num_predict: max_tokens,
+          temperature: temperature,
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "");
+      throw new Error(
+        `Ollama chat API error: ${res.status} ${res.statusText}. ${errorText}`,
+      );
+    }
+
+    const data = await res.json();
+
+    // Extract the assistant's message
+    if (data.message && data.message.content) {
+      return data.message.content;
+    }
+
+    // Fallback parsing
+    return parseOllamaResponse(JSON.stringify(data));
+  } catch (error) {
+    console.error("Error in chatCompletion:", error);
+    throw new Error(`Failed to get chat completion: ${error.message}`);
+  }
+}
+
+/**
+ * List available models
+ * @returns {Promise<Array>} - Array of available model names
+ */
+async function listModels() {
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/tags`, {
+      method: "GET",
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to list models: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data.models || [];
+  } catch (error) {
+    console.error("Error listing models:", error);
+    return [];
+  }
+}
+
+/**
+ * Check if Ollama server is running and accessible
+ * @returns {Promise<boolean>} - True if server is accessible
+ */
+async function checkHealth() {
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/tags`, {
+      method: "GET",
+    });
+    return res.ok;
+  } catch (error) {
+    console.error("Ollama health check failed:", error.message);
+    return false;
   }
 }
 
 export {
   generateText,
   streamGenerate,
+  chatCompletion,
+  listModels,
+  checkHealth,
+  OLLAMA_URL,
+  DEFAULT_MODEL,
 };
